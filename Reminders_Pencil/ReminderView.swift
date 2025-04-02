@@ -5,8 +5,7 @@
 //  Created by Patryk Ostrowski on 01/04/2025.
 //
 
-//Jak sie robia bledy pamietaj, ze mozliwe iz array reminder jest pustyyyy
-//staraj zostawiac apke z czyms w arrayu narazie
+
 
 //rozkminka przeciaganie
 

@@ -13,6 +13,7 @@
 
 import SwiftUI
 import SwiftData
+import PencilKit
 
 struct ReminderView: View {
     //dostep do kontekstu, operacje na nim
@@ -37,8 +38,9 @@ struct ReminderView: View {
                 NavigationLink {
                     EditReminderView(reminder: reminder)
                 } label: {
-                    Text(reminder.title)
-                        .foregroundStyle(reminder.isCompleted ? .gray : .green)
+                    DrawingView(reminder: reminder)
+                        .border(Color.red)
+                        .frame(height: 100)
                 }
                 .swipeActions {
                     Button("Delete", systemImage: "trash", role: .destructive) {
@@ -61,8 +63,9 @@ struct ReminderView: View {
                 EditButton()
             }
             
+            
             ToolbarItem(placement: .topBarTrailing) {
-                Button("Sample Reminder") {
+                Button("Sample Reminder", systemImage: "plus") {
                     let newOrder = orderedReminders.count
                     let newReminder = Reminder(title: "New reminder \(newOrder)", order: newOrder)
                     modelContext.insert(newReminder)
@@ -85,7 +88,6 @@ struct ReminderView: View {
         //wazne gdy sie zmieni cos w query zeby zaktualizowac
         .onChange(of: reminders) {
             updateReminders()
-            reindexReminders()
         }
 
         
@@ -93,7 +95,7 @@ struct ReminderView: View {
     }
     
 
-    
+//Movig funcs
     private func moveReminder(from source: IndexSet, to destination: Int) {
         
         //przesuwa elementy w orderReminders metoda move
@@ -107,6 +109,7 @@ struct ReminderView: View {
         
         //zapis baza dancyh
         try? modelContext.save()
+        print("Moved")
     }
     
     //wazna bardzo akutlanie, kopiuje elementy z reimnders (query) do kolekcji orderedReminders
@@ -133,6 +136,7 @@ struct ReminderView: View {
         }
         try? modelContext.save()
     }
+    
 }
 
 
@@ -140,3 +144,5 @@ struct ReminderView: View {
     ReminderView()
         .modelContainer(for: Reminder.self)
 }
+
+

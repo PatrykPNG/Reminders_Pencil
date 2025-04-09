@@ -20,6 +20,28 @@ struct EditReminderView: View {
                 Text(String(reminder.order))
                     .font(.subheadline)
             }
+            Section("Drawing preview") {
+                if let previewImage = reminder.getDrawingPreviewImage() {
+                    Image(uiImage: previewImage)
+                        .resizable()
+                        .scaledToFit()
+                        .frame(height: 200)
+                } else {
+                    Text("No preview image")
+                        .foregroundStyle(.secondary)
+                }
+            }
+            Section("Drawing text") {
+                if let handwrittenText = reminder.handwrittenText, !handwrittenText.isEmpty {
+                    Text("Recognized text:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(handwrittenText)
+                        .font(.body)
+                } else {
+                    Text("Recognized text is unvalible")
+                }
+            }
         }
     }
 }
@@ -27,4 +49,11 @@ struct EditReminderView: View {
 #Preview {
     EditReminderView(reminder: Reminder(title: "Test", order: 1))
         .modelContainer(for: Reminder.self)
+}
+
+extension Reminder {
+    func getDrawingPreviewImage() -> UIImage? {
+        guard let previewData = drawingPreview else { return nil }
+        return UIImage(data: previewData)
+    }
 }

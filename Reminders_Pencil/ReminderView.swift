@@ -30,17 +30,23 @@ struct ReminderView: View {
     //do masowego usuwania, empty by defult, no selections
     @State private var selectedProspects = Set<Reminder>()
     
-
+    init() {
+        UITableView.appearance().backgroundColor = UIColor.systemGray6
+    }
+    
     var body: some View {
         //selection umozliwia wybor wielu elementow
         List(selection: $selectedProspects) {
             ForEach(orderedReminders) { reminder in
-                NavigationLink {
-                    EditReminderView(reminder: reminder)
-                } label: {
-                    DrawingView(reminder: reminder)
-                        .border(Color.red)
-                        .frame(height: 100)
+                NavigationLink(destination: EditReminderView(reminder: reminder)) {
+                    HStack {
+                        DrawingView(reminder: reminder)
+                            .frame(height: 100)
+                        
+                        Spacer()
+                        
+                        Image(systemName: "info")
+                    }
                 }
                 .swipeActions {
                     Button("Delete", systemImage: "trash", role: .destructive) {
@@ -55,9 +61,11 @@ struct ReminderView: View {
             }
             //umozliwa przeciaganie i upuszczanie elementow z listy, wywoluje funkjce po zmianie kolejnosci
             .onMove(perform: moveReminder)
-
+            .listRowBackground(Color.gray)
         }
         .navigationTitle("Reminders")
+        .scrollContentBackground(.hidden)
+        .background(Color.gray)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 EditButton()

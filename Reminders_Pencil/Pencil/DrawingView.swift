@@ -36,11 +36,30 @@ struct DrawingView: View {
     
         //Wprowadz opozniony zapis zeby non stop sie nie zapisywalo, tylko np z opiznieniem 300 ms
     func saveDrawing() {
-        let drawingData = canvasView.drawing.dataRepresentation()
-        reminder.drawingData = drawingData
-        try? modelContext.save()
+        //jesli jest ten sam co wczesniej return, jesli nie jest taki jak reminder.drawingData, to wykonaj
+        guard canvasView.drawing.dataRepresentation() != reminder.drawingData else { return }
         
-        print("drawing saved")
+        //zzapis danych rysunku
+        reminder.drawingData = canvasView.drawing.dataRepresentation()
+        
+        //podglad obrazu
+        let drawingPreview = canvasView.drawing.toImage(size: canvasView.bounds.size)
+        reminder.drawingPreview = drawingPreview.pngData()
+        
+        //rozpoznawanie tekstu z rysunku
+        canvasView.drawing.recognizeText { recognizedText in
+            //update tekstu na glownym watku
+            DispatchQueue.main.async {
+                self.reminder.handwrittenText = recognizedText
+                
+                //opozniony zapis do bazy swiftData
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                    try? modelContext.save()
+                }
+                
+                print("drawing and text saved: \(recognizedText ?? "No text recognized")")
+            }
+        }
     }
     
     func loadDrawing() {

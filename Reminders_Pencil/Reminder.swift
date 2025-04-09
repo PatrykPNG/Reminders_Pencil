@@ -14,7 +14,9 @@ class Reminder {
     var title: String
     var isCompleted: Bool = false
     var order: Int
-    var drawingData: Data?
+    var drawingData: Data? //Data z rysunku
+    var handwrittenText: String?
+    var drawingPreview: Data? //podglad rysunku
     
     init(title: String, order: Int) {
         self.title = title

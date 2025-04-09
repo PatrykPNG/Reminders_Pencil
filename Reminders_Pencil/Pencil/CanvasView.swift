@@ -5,8 +5,12 @@
 //  Created by Patryk Ostrowski on 03/04/2025.
 //
 
+//Problem z AtributeGraph: cycle, wynikal z powodu tool pickera w updateUi view, trzeba bylo go zguardowac
+
+//Zastanow sie nad zastosowaniem @Binding
 import SwiftUI
 import PencilKit
+import Vision
 
 struct CanvasView {
     @Binding var canvasView: PKCanvasView
@@ -16,14 +20,16 @@ struct CanvasView {
 
 private extension CanvasView {
     func showToolPicker() {
-        //1 widoczny wtedy kiedy canvas view jest aktywny
-        toolPicker.setVisible(true, forFirstResponder: canvasView)
-        
-        //2 canwas view informawane o zmianach dla toolpickera
-        toolPicker.addObserver(canvasView)
-        
-        //3 prosba o zrobienioe canvas view first responder w celu azrobienia toolpicekra widocznym.
-        canvasView.becomeFirstResponder()
+        DispatchQueue.main.async {
+            //1 widoczny wtedy kiedy canvas view jest aktywny
+            toolPicker.setVisible(true, forFirstResponder: canvasView)
+            
+            //2 canwas view informawane o zmianach dla toolpickera
+            toolPicker.addObserver(canvasView)
+            
+            //3 prosba o zrobienioe canvas view first responder w celu azrobienia toolpicekra widocznym.
+            canvasView.becomeFirstResponder()
+        }
     }
 }
 
@@ -31,6 +37,8 @@ extension CanvasView: UIViewRepresentable {
     func makeUIView(context: Context) -> PKCanvasView {
 //        canvasView.tool = PKInkingTool(.pencil, color: .black, width: 10)
 //        canvasView.drawingPolicy = .pencilOnly
+        canvasView.backgroundColor = UIColor.gray
+        canvasView.isOpaque = true
         #if targetEnvironment(simulator)
         canvasView.drawingPolicy = .anyInput
         #endif
@@ -43,6 +51,7 @@ extension CanvasView: UIViewRepresentable {
     //Reaguje na zmiany w swiftui view
     func updateUIView(_ uiView: PKCanvasView, context: Context) {
         // Jesli tutaj nie ma toolpickera to po wejsciu w navLink i powrocie toolpicker znika, nie jest dostepny
+        guard !toolPicker.isVisible else { return }
         showToolPicker()
     }
     
@@ -64,10 +73,59 @@ class Coordinator: NSObject {
 }
 //moze tutaj cos z pickerem?
 //Reaguje na aktualizacje w rysunku. Aktywuje sie kiedy nastaja jakies zmiany w rysunkju.
-extension Coordinator: PKCanvasViewDelegate {
+//patent na zapobieganie "pustym zmiana"
+//dodaje PkToolPickerObserver do koordyantora
+extension Coordinator: PKCanvasViewDelegate, PKToolPickerObserver {
     func canvasViewDrawingDidChange(_ canvasView: PKCanvasView) {
-        if !canvasView.drawing.bounds.isEmpty {
-            onSaved()
+        guard !canvasView.drawing.bounds.isEmpty else { return }
+        onSaved()
+    }
+    
+    func toolPickerSelectedToolDidChange(_ toolPicker: PKToolPicker) {
+        onSaved()
+    }
+}
+
+
+//PKDrawing na UIImage
+extension PKDrawing {
+    func toImage(size: CGSize) -> UIImage {
+        let drawingImage = self.image(from: CGRect(origin: .zero, size: size), scale: 1.0)
+        return drawingImage
+    }
+}
+
+extension PKDrawing {
+    func recognizeText(completion: @escaping (String?) -> Void) {
+        // KOnwersja PKDrawing na UIImage (tuaj moze mozna to zastapic ale to potem)
+        let drawingImage = self.image(from: self.bounds, scale: UIScreen.main.scale)
+        
+        // przygotowanie zadania do rozpoznawania tekstu
+        let request = VNRecognizeTextRequest { (request, error) in
+            guard let observations = request.results as? [VNRecognizedTextObservation], error == nil else {
+                completion(nil)
+                return
+            }
+            
+            // zbieranie rozpoznanego tekstu z all obserwacji
+            let recognizedStrings = observations.compactMap { observation in
+                observation.topCandidates(1).first?.string
+            }
+            
+            // ustawienie tesktu, polaczenie linii
+            let recognizedText = recognizedStrings.joined(separator: " ")
+            completion(recognizedText)
+        }
+        
+        //konfig rozpoznawania - mozemy tutaj dostoswac jesli bedzie cos nie tak, dla pisma odrecznego testy
+        request.recognitionLevel = .accurate
+        request.usesLanguageCorrection = true
+        request.recognitionLanguages = ["pl", "en"]
+        
+        //zeby wykonywalo sie to wszystko w tle
+        DispatchQueue.global(qos: .userInitiated).async {
+            let requestHandler = VNImageRequestHandler(cgImage: drawingImage.cgImage!, options: [:])
+            try? requestHandler.perform([request])
         }
     }
 }

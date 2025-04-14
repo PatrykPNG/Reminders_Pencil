@@ -35,7 +35,7 @@ extension PKDrawing {
         }
         
         // ustawienie rewqizji na 2
-        request.revision = 2
+//        request.revision = 2
         
         //konfig rozpoznawania - mozemy tutaj dostoswac jesli bedzie cos nie tak, dla pisma odrecznego testy
         request.recognitionLevel = .accurate

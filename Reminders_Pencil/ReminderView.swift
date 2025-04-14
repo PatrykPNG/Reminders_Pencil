@@ -30,9 +30,6 @@ struct ReminderView: View {
     //do masowego usuwania, empty by defult, no selections
     @State private var selectedProspects = Set<Reminder>()
     
-    init() {
-        UITableView.appearance().backgroundColor = UIColor.systemGray6
-    }
     
     var body: some View {
         //selection umozliwia wybor wielu elementow

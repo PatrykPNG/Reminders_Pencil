@@ -19,20 +19,9 @@ struct DrawingView: View {
             .onAppear {
                 loadDrawing()
             }
-        //dla kazdego przypomnienia bedzie wyswietlac sie osobny przycisk
-//            .toolbar {
-//                ToolbarItem(placement: .topBarTrailing) {
-//                    Button("delete drawing", systemImage: "trash") {
-//                        deleteDrawing()
-//                    }
-//                }
-//            }
     }
     
-//Drawing func
-//    func deleteDrawing() {
-//        canvasView.drawing = PKDrawing()
-//    }
+
     
         //Wprowadz opozniony zapis zeby non stop sie nie zapisywalo, tylko np z opiznieniem 300 ms
     func saveDrawing() {

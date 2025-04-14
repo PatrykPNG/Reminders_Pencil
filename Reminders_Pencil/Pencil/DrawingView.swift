@@ -43,10 +43,13 @@ struct DrawingView: View {
                 
                 //opozniony zapis do bazy swiftData
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
-                    try? modelContext.save()
+                    do {
+                        try self.modelContext.save()
+                        print("Reminder saved, with text: \(recognizedText ?? "Unknown to recognize text")")
+                    } catch {
+                        print("Error ocured when saving to swiftData: \(error)")
+                    }
                 }
-                
-                print("drawing and text saved: \(recognizedText ?? "No text recognized")")
             }
         }
     }

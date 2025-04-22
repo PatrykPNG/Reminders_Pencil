@@ -20,8 +20,6 @@ struct EditReminderView: View {
     
     @State private var event: EKEvent? = nil
     
-    //to i textfield z tym do usuniecia
-    @State private var title: String = "123"
     
     private let eventStore = EKEventStore()
     
@@ -31,7 +29,6 @@ struct EditReminderView: View {
                 TextField("Type title", text: $reminder.title)
                     .font(.headline)
                 
-                TextField("test", text: $title)
             }
             Section("Position") {
                 Text(String(reminder.order))
@@ -49,15 +46,11 @@ struct EditReminderView: View {
                 }
             }
             Section("Drawing text") {
-                if let handwrittenText = reminder.handwrittenText, !handwrittenText.isEmpty {
-                    Text("Recognized text:")
-                        .font(.caption)
-                        .foregroundStyle(.secondary)
-                    Text(handwrittenText)
-                        .font(.body)
-                } else {
-                    Text("Recognized text is unvalible")
-                }
+                Text("Recognized text:")
+                    .font(.caption)
+                    .foregroundStyle(.secondary)
+                TextField("Recognized text", text: $reminder.handwrittenText ?? "Recognized text is unvalible")
+                    .font(.body)
             }
         }
         
@@ -109,4 +102,12 @@ extension Reminder {
 }
 
 
-
+public extension Binding where Value: Sendable, Value: Equatable {
+    static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
+        Binding {
+            lhs.wrappedValue ?? rhs
+        } set: {
+            lhs.wrappedValue = $0 == rhs ? nil : $0
+        }
+    }
+}

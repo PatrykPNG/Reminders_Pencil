@@ -12,7 +12,7 @@ import EventKitUI
 struct EditReminderView: View {
     @Bindable var reminder: Reminder
     
-    
+    @State private var handWrittenTextForEdit = ""
     
     //EkEvent
     @State private var showEventEdit: Bool = false
@@ -46,12 +46,21 @@ struct EditReminderView: View {
                 }
             }
             Section("Drawing text") {
-                Text("Recognized text:")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
-                TextField("Recognized text", text: $reminder.handwrittenText ?? "Recognized text is unvalible")
-                    .font(.body)
+                if let handwrittenText = reminder.handwrittenText, !handwrittenText.isEmpty {
+                    Text("Recognized text:")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(handwrittenText)
+                        .font(.body)
+                } else {
+                    Text("Recognized text is unvalible")
+                }
             }
+            // zaczalem kminic tutaj nad textfield do edycji tekstu
+//            Text("TextField for HandwrittenText Edit:")
+//                .font(.caption)
+//                .foregroundStyle(.secondary)
+//            TextField("handWrittenTextForEdit", text: $reminder.handwrittenText ?? "")
         }
         
         .sheet(isPresented: $showEventEdit, onDismiss: {
@@ -102,12 +111,15 @@ extension Reminder {
 }
 
 
-private extension Binding where Value: Sendable, Value: Equatable {
-    static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
-        Binding {
-            lhs.wrappedValue ?? rhs
-        } set: {
-            lhs.wrappedValue = $0 == rhs ? nil : $0
-        }
-    }
-}
+  //extension dla textfield z optional Bindingiem.
+//private extension Binding where Value: Sendable, Value: Equatable {
+//    static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
+//        Binding {
+//            lhs.wrappedValue ?? rhs
+//        } set: {
+//            lhs.wrappedValue = $0 == rhs ? nil : $0
+//        }
+//    }
+//}
+
+

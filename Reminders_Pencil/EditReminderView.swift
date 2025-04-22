@@ -56,7 +56,7 @@ struct EditReminderView: View {
                     Text("Recognized text is unvalible")
                 }
             }
-            // zaczalem kminic tutaj nad textfield do edycji tekstu
+            // zaczalem kminic tutaj nad textfield do edycji tekstu ale raczej nie potrzebne, bo mozemy edytowac w dodawaniu eventu.
 //            Text("TextField for HandwrittenText Edit:")
 //                .font(.caption)
 //                .foregroundStyle(.secondary)

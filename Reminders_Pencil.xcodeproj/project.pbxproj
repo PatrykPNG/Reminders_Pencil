@@ -10,22 +10,9 @@
 		78A1E5DE2D9C421900942781 /* Reminders_Pencil.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Reminders_Pencil.app; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
-/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		786A9C262DB7BEBE004D2EC5 /* Exceptions for "Reminders_Pencil" folder in "Reminders_Pencil" target */ = {
-			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
-			membershipExceptions = (
-				"Reminders-Pencil-Info.plist",
-			);
-			target = 78A1E5DD2D9C421900942781 /* Reminders_Pencil */;
-		};
-/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
-
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		78A1E5E02D9C421900942781 /* Reminders_Pencil */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			exceptions = (
-				786A9C262DB7BEBE004D2EC5 /* Exceptions for "Reminders_Pencil" folder in "Reminders_Pencil" target */,
-			);
 			path = Reminders_Pencil;
 			sourceTree = "<group>";
 		};

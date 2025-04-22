@@ -102,7 +102,7 @@ extension Reminder {
 }
 
 
-public extension Binding where Value: Sendable, Value: Equatable {
+private extension Binding where Value: Sendable, Value: Equatable {
     static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
         Binding {
             lhs.wrappedValue ?? rhs

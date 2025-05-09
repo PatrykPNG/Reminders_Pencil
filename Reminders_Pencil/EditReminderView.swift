@@ -11,17 +11,8 @@ import EventKitUI
 
 struct EditReminderView: View {
     @Bindable var reminder: Reminder
+
     
-    @State private var handWrittenTextForEdit = ""
-    
-    //EkEvent
-    @State private var showEventEdit: Bool = false
-    @State private var completedAction: EKEventEditViewAction? = nil
-    
-    @State private var event: EKEvent? = nil
-    
-    
-    private let eventStore = EKEventStore()
     
     var body: some View {
         Form {
@@ -56,45 +47,46 @@ struct EditReminderView: View {
                     Text("Recognized text is unvalible")
                 }
             }
-            // zaczalem kminic tutaj nad textfield do edycji tekstu ale raczej nie potrzebne, bo mozemy edytowac w dodawaniu eventu.
-//            Text("TextField for HandwrittenText Edit:")
-//                .font(.caption)
-//                .foregroundStyle(.secondary)
-//            TextField("handWrittenTextForEdit", text: $reminder.handwrittenText ?? "")
         }
-        
-        .sheet(isPresented: $showEventEdit, onDismiss: {
-            if completedAction == .saved {
-                clearEvent()
-            }
-        }, content: {
-            EventEditViewControllerRepresentable(
-                store: eventStore,
-                event: $event,
-                isPresented: $showEventEdit,
-                completedAction: $completedAction
-            )
-            .ignoresSafeArea(.all)
-        })
         .toolbar {
             ToolbarItem {
-                Button("add to calendar") {
-                    createEvent()
-                    showEventEdit = true
+                Button("add to reminders") {
+                    let reminderText = (reminder.handwrittenText?.isEmpty == false)
+                    ? reminder.handwrittenText! : "Text Recognition left handWritten value empty"
+                    
+                    addToSystemReminders(title: reminderText) { result in
+                        switch result {
+                        case .success:
+                            print("reminder added to reminders")
+                        case .failure(let error):
+                            print("Error: \(error.localizedDescription)")
+                        }
+                    }
                 }
             }
         }
     }
-    private func createEvent() {
-        let event = EKEvent(eventStore: self.eventStore)
-        //tutaj co cchemy zeby sie wyswietlalo w okienku do edycji dodania do kalendarza
-        event.title = self.reminder.handwrittenText ?? ""
-        self.event = event
-        
-    }
-    
-    private func clearEvent() {
-        self.event = nil
+    func addToSystemReminders(title: String, completion: @escaping (Result<Void, Error>) -> Void) {
+        let eventStore = EKEventStore()
+        eventStore.requestFullAccessToReminders() { granted, error in
+            if let error = error {
+                completion(.failure(error))
+                return
+            }
+            guard granted else {
+                print("no acces to reminders")
+                return
+            }
+            let reminder = EKReminder(eventStore: eventStore)
+            reminder.title = title
+            reminder.calendar = eventStore.defaultCalendarForNewReminders()
+            do {
+                try eventStore.save(reminder, commit: true)
+                completion(.success(()))
+            } catch {
+                completion(.failure(error))
+            }
+        }
     }
 }
 
@@ -110,16 +102,5 @@ extension Reminder {
     }
 }
 
-
-  //extension dla textfield z optional Bindingiem.
-//private extension Binding where Value: Sendable, Value: Equatable {
-//    static func ??(lhs: Binding<Optional<Value>>, rhs: Value) -> Binding<Value> {
-//        Binding {
-//            lhs.wrappedValue ?? rhs
-//        } set: {
-//            lhs.wrappedValue = $0 == rhs ? nil : $0
-//        }
-//    }
-//}
 
 

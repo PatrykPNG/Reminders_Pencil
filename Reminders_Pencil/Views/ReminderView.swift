@@ -58,11 +58,11 @@ struct ReminderView: View {
             }
             //umozliwa przeciaganie i upuszczanie elementow z listy, wywoluje funkjce po zmianie kolejnosci
             .onMove(perform: moveReminder)
-            .listRowBackground(Color.gray)
+//            .listRowBackground(Color.gray)
         }
         .navigationTitle("Reminders")
         .scrollContentBackground(.hidden)
-        .background(Color.gray)
+//        .background(Color.gray)
         .toolbar {
             ToolbarItem(placement: .topBarLeading) {
                 EditButton()
